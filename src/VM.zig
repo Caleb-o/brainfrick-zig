@@ -4,7 +4,8 @@ const ByteCode = @import("bytecode.zig").ByteCode;
 
 const Self = @This();
 
-const MEMORY_CELLS = 512;
+const MEMORY_CELLS = 2048;
+var ProgramMemory = [_]u8{0} ** MEMORY_CELLS;
 
 const RuntimeStatus = enum {
     Ok,
@@ -23,13 +24,12 @@ pub fn create(allocator: Allocator, code: []u8) Self {
         .ip = 0,
         .mp = 0,
         .code = code,
-        .memory = allocator.alloc(u8, MEMORY_CELLS) catch std.debug.panic("OOM", .{}),
+        .memory = &ProgramMemory,
     };
 }
 
 pub inline fn destroy(self: *const Self) void {
     self.allocator.free(self.code);
-    self.allocator.free(self.memory);
 }
 
 pub fn run(self: *Self) RuntimeStatus {
